@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
-pub enum ErrorCode {
+pub enum CandyError {
     #[msg("You don't have enough SOL to mint this NFT")]
     NotEnoughSOL,
 
@@ -10,4 +10,13 @@ pub enum ErrorCode {
 
     #[msg("There are no more NFTs to mint in this collection")]
     CandyMachineEmpty,
+
+    #[msg("Mint Mismatch!")]
+    MintMismatch,
+
+    #[msg("Incorrect collection NFT authority")]
+    IncorrectCollectionAuthority,
+
+    #[msg("Numerical overflow error!")]
+    NumericalOverflowError,
 }

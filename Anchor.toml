@@ -1,17 +1,14 @@
-[programs.localnet]
-minimal_mint = "BhuuED6jc394a3TpPiqzzy996RPWkVgVMtonNFHe5H3t"
-
 [programs.devnet]
-minimal_mint = "BhuuED6jc394a3TpPiqzzy996RPWkVgVMtonNFHe5H3t"
+nft_buoy = "Ft9edb9hsAtDMCdwDQ8AxWM4PsudnnfjqjzNReZQ8DRo"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
 cluster = "devnet"
-wallet = "~/.config/solana/devnet.json"
+wallet = "~/solana/nft_buoy/.wallets/cm-authority/id-devnet.json"
 
 [scripts]
-test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts"
-test_init_candy_machine = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeCandyMachine.ts"
-test_update_candy_machine = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/updateCandyMachine.ts"
+test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=./.wallets/person-minting/id-devnet.json"
+test_init_candy_machine = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeCandyMachine.ts --keypair=./.wallets/cm-authority/id-devnet.json"
+test_create_collection = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/createCollection.ts --keypair=./.wallets/cm-authority/id-devnet.json"

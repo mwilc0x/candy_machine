@@ -9,14 +9,14 @@ pub struct Creator {
 }
 
 #[account]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct CandyMachine {
     pub authority: Pubkey,
     pub bump: u8,
     pub data: CandyMachineData,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, PartialEq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, Debug)]
 pub struct CandyMachineData {
     pub price: u64,
     pub nfts_minted: u64,
@@ -25,8 +25,18 @@ pub struct CandyMachineData {
     pub symbol: String,
     pub seller_fee_basis_points: u16,
     pub max_supply: Option<u64>,
+    pub collection_mint_key: Option<Pubkey>,
+}
+
+/// Collection PDA account
+#[account]
+#[derive(Default, Debug)]
+pub struct CollectionPDA {
+    pub mint: Pubkey,
+    pub candy_machine: Pubkey,
 }
 
 /* seeds of the PDA, can be anything you want */
 /* remember to change them on the JS too (utils.ts file) */
-pub static PREFIX: &str = "dog";
+pub static PREFIX: &str = "hard-glass-bookshelf";
+

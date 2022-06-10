@@ -37,7 +37,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": false
   },
-  "workbench.colorTheme": "Tokyo Night",
+  "workbench.colorTheme": "Default Light+",
   "workbench.iconTheme": "material-icon-theme",
   "breadcrumbs.enabled": false,
   "npm.runSilent": true,

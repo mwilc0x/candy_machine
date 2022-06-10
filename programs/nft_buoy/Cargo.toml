@@ -1,0 +1,21 @@
+[package]
+name = "nft_buoy"
+version = "0.0.1"
+description = "Art NFT Generator"
+authors = ["Michael Wilcox <mwilcox56@gmail.com>"]
+edition = "2018"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nft_buoy"
+
+[features]
+no-entrypoint = []
+
+[dependencies]
+anchor-lang = "0.24.2"
+anchor-spl = "0.24.2"
+mpl-token-metadata = { version = "1.2.10", features = [ "no-entrypoint" ] }
+spl-token = { version = "3.1.1", features = [ "no-entrypoint" ] }
+solana-program = "1.9.18"

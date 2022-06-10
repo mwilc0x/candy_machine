@@ -1,4 +1,4 @@
-## Minimalistic solana minter program
+## Solana NFT Generator
 
 The objective of this repository is to be only a minimalistic template for NFTs projects on Solana, so you can build your own program with your own features using this as a model. Also, it is ideal for someone who wants to study Solana. And it uses Serum Anchor framework to make abstractions and to handle automatic serialization and deserialization.
 
@@ -35,7 +35,7 @@ The "candy_machine" is just a configuration account with variables that will be 
 
 ## Testing
 
-- `yarn test-candy` will initiate your minter. Remember to change the seed (PREFIX const) on `/constants.ts` and `programs/minimal_mint/src/state.rs` every time you generate a new candy machine
+- `yarn test-candy` will initiate your minter. Remember to change the seed (PREFIX const) on `/constants.ts` and `programs/sol_nft_generator/src/state.rs` every time you generate a new candy machine
 - `yarn test-mint` will mint you a NFT
 - `yarn test-update-candy` will update the candy machine
 
