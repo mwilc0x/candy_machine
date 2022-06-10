@@ -15,7 +15,7 @@ use collection::*;
 use mint::*;
 use candy_machine::*;
 
-declare_id!("Ft9edb9hsAtDMCdwDQ8AxWM4PsudnnfjqjzNReZQ8DRo");
+declare_id!("7FU1DwsTzUheVH4rQBy4ZM89fMMDwJeS5wBVh1dpRVyC");
 
 #[program]
 pub mod nft_buoy {
@@ -35,5 +35,9 @@ pub mod nft_buoy {
 
     pub fn update_candy_machine_collection(ctx: Context<UpdateCandyMachine>, collection_mint_key: Option<Pubkey>) -> Result<()> {
         handle_update_candy_machine_collection(ctx, collection_mint_key)
+    }
+
+    pub fn get_candy_machine_state(ctx: Context<GetCandyMachineState>) -> Result<CandyMachineData> {
+        handle_get_candy_machine_state(ctx)
     }
 }

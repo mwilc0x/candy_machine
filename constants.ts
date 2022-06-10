@@ -15,11 +15,11 @@ export const PREFIX = 'hard-glass-bookshelf';
 
 /* replace the following with your own pubkeys */
 export const CANDY_MACHINE_PUBLIC_KEY = new PublicKey(
-  'AMvLaiAhVfF41pQvXZnXhpZzLDb8MNEHSC7V3TUF63DY'
+  'Ax2XcEju3HYbsxtKeBUPrP7r1zvq44wayNcemNXFG5zw'
 );
 
 export const CANDY_MACHINE_PROGRAM_ID = new PublicKey(
-  'Ft9edb9hsAtDMCdwDQ8AxWM4PsudnnfjqjzNReZQ8DRo'
+  '7FU1DwsTzUheVH4rQBy4ZM89fMMDwJeS5wBVh1dpRVyC'
 );
 
 export const DEFAULT_TIMEOUT = 30000;

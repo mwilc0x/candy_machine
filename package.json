@@ -17,7 +17,8 @@
     "test-mint": "anchor run test_mint",
     "test-candy": "anchor run test_init_candy_machine",
     "test-update_candy": "anchor run test_update_candy_machine",
-    "test-create_collection": "anchor run test_create_collection"
+    "test-create_collection": "anchor run test_create_collection",
+    "test-get_cm_state": "anchor run test_get_cm_state"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",
