@@ -4,7 +4,7 @@ import {
   SystemProgram,
   SYSVAR_RENT_PUBKEY,
 } from '@solana/web3.js';
-import { CANDY_MACHINE_PUBLIC_KEY, TOKEN_METADATA_PROGRAM_ID } from '../constants';
+import { FARM_PUBLIC_KEY, TOKEN_METADATA_PROGRAM_ID } from '../constants';
 import {
   createAssociatedTokenAccountInstruction,
   getMetadata,
@@ -17,19 +17,19 @@ import {
 import collectionKeys from '../collection-keys.json';
 
 export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
-  /* make sure to replace the const 'candyMachine' */
+  /* make sure to replace the const 'farm' */
   /* on /constants.ts with your own address,
-  that you will get by running scripts/initializeCandyMachine.ts */
-  const candyMachineState = await program.account.candyMachine.fetch(
-    CANDY_MACHINE_PUBLIC_KEY
+  that you will get by running scripts/initializeFarm.ts */
+  const farmState = await program.account.farm.fetch(
+    FARM_PUBLIC_KEY
   );
   
   const mint = Keypair.generate();
-  const userKeyPair = loadWalletKey(keypair);
+  const payer = loadWalletKey(keypair);
   const collectionKeyPair = loadWalletKey("./.wallets/cm-authority/id-devnet.json");
 
   const userTokenAccountAddress = await getTokenWallet(
-    userKeyPair.publicKey,
+    payer.publicKey,
     mint.publicKey,
   );
 
@@ -39,7 +39,7 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
   );
 
   let creatorPDAPubkey;
-  [creatorPDAPubkey] = await getCreatorPDA(CANDY_MACHINE_PUBLIC_KEY, collectionKeyPair.publicKey);
+  [creatorPDAPubkey] = await getCreatorPDA(FARM_PUBLIC_KEY, collectionKeyPair.publicKey);
 
   const {
     collectionMint,
@@ -49,11 +49,11 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
   } = collectionKeys;
 
   const accounts = {
-    candyMachine: CANDY_MACHINE_PUBLIC_KEY,
-    authority: candyMachineState.authority,
+    farm: FARM_PUBLIC_KEY,
+    authority: farmState.authority,
     mint: mint.publicKey,
     metadata,
-    mintAuthority: userKeyPair.publicKey,
+    mintAuthority: payer.publicKey,
     tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
     tokenProgram: TOKEN_PROGRAM_ID,
     systemProgram: SystemProgram.programId,
@@ -64,17 +64,19 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
     collectionMasterEdition,
     collectionPda,
     creator: collectionKeyPair.publicKey,
-    creatorPda: creatorPDAPubkey
+    // creatorPda: creatorPDAPubkey
   };
+
+  console.log('minting for ', payer.publicKey.toString());
 
   const result = await program.methods
     .mintNft('Shrek #1', 'https://api.amoebits.io/get/amoebits_1')
     .accounts(accounts)
-    .signers([mint, userKeyPair])
+    .signers([payer, mint])
     .preInstructions([
       /* create a token/mint account and pay the rent */
       SystemProgram.createAccount({
-        fromPubkey: userKeyPair.publicKey,
+        fromPubkey: payer.publicKey,
         newAccountPubkey: mint.publicKey,
         space: MintLayout.span,
         lamports: rent,
@@ -84,14 +86,14 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
         TOKEN_PROGRAM_ID,
         mint.publicKey,
         0, // decimals
-        userKeyPair.publicKey, // mint authority
-        userKeyPair.publicKey // freeze authority
+        payer.publicKey, // mint authority
+        payer.publicKey // freeze authority
       ),
       /* create an account that will hold your NFT */
       createAssociatedTokenAccountInstruction(
         userTokenAccountAddress, // associated account
-        userKeyPair.publicKey, // payer
-        userKeyPair.publicKey, // wallet address (to)
+        payer.publicKey, // payer
+        payer.publicKey, // wallet address (to)
         mint.publicKey // mint/token address
       ),
       /* mint a NFT to the mint account */
@@ -99,7 +101,7 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
         TOKEN_PROGRAM_ID,
         mint.publicKey, // from
         userTokenAccountAddress, // account that will receive the metadata
-        userKeyPair.publicKey, // authority
+        payer.publicKey, // authority
         [],
         1 // amount
       )

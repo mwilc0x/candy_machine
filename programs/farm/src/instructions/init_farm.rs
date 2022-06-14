@@ -1,16 +1,17 @@
 use crate::state::*;
 use { anchor_lang::prelude::*, mpl_token_metadata };
 use mpl_token_metadata::state::{
-    MAX_CREATOR_LEN, MAX_CREATOR_LIMIT, MAX_SYMBOL_LENGTH,
+   MAX_CREATOR_LEN, MAX_CREATOR_LIMIT, MAX_SYMBOL_LENGTH,
 };
 
+// space = 8 + std::mem::size_of::<FarmData>(),
 #[derive(Accounts)]
-#[instruction(data: CandyMachineData)]
-pub struct InitializeCandyMachine<'info> {
+#[instruction(data: FarmData)]
+pub struct InitializeFarm<'info> {
     #[account(
         init,
-        seeds=[PREFIX.as_bytes()],
         payer = authority,
+        seeds=[PREFIX.as_bytes()],
         space =
             8 + // discriminator
             8 + // price
@@ -24,9 +25,9 @@ pub struct InitializeCandyMachine<'info> {
             1 + 32 +  // collection key
             1,   // bump + bonus
         bump,
-        constraint = candy_machine.to_account_info().owner == program_id
+        constraint = farm.to_account_info().owner == program_id
     )]
-    pub candy_machine: Account<'info, CandyMachine>,
+    pub farm: Account<'info, Farm>,
 
     /* the authority will also receive SOL from sales fees */
     #[account(mut)]
@@ -34,16 +35,21 @@ pub struct InitializeCandyMachine<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handle_initialize_candy_machine(
-    ctx: Context<InitializeCandyMachine>,
-    data: CandyMachineData,
+pub fn handle_initialize_farm(
+    ctx: Context<InitializeFarm>,
+    data: FarmData,
 ) -> Result<()> {
 
-    let candy_machine = &mut ctx.accounts.candy_machine;
+    let farm = &mut ctx.accounts.farm;
 
-    candy_machine.data = data;
-    candy_machine.authority = *ctx.accounts.authority.key;
-    candy_machine.bump = *ctx.bumps.get("candy_machine").unwrap();
+    farm.data = data;
+    farm.authority = *ctx.accounts.authority.key;
+    farm.bump = *ctx.bumps.get("farm").unwrap();
+
+    msg!(
+        "Initialized farm: {}.",
+        farm.key()
+    );
 
     Ok(())
 }

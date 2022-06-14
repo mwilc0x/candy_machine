@@ -9,9 +9,9 @@ import {
 } from '../utils';
 
 import { PREFIX } from '../constants'
-import idl from '../target/idl/nft_buoy.json'
+import idl from '../target/idl/farm.json'
 
-type CandyMachineInitData = {
+type FarmInitData = {
   keypair: Keypair,
   maxSupply: number,
   itemsAvailable: number,
@@ -21,17 +21,17 @@ type CandyMachineInitData = {
   goLiveDate: number
 };
 
-export const initializeCandyMachine = async <CandyMachineInitData>(initData) => {
+export const initializeFarm = async <FarmInitData>(initData) => {
   let creatorPDAPubkey;
   const adminKeyPair = loadWalletKey(initData.keypair);
 
   /* generating a PDA */
-  const [candyMachine] = await PublicKey.findProgramAddress(
+  const [farm] = await PublicKey.findProgramAddress(
     [Buffer.from(PREFIX)],
     new PublicKey(idl.metadata.address)
   );
 
-  [creatorPDAPubkey] = await getCreatorPDA(candyMachine, adminKeyPair.publicKey);
+  [creatorPDAPubkey] = await getCreatorPDA(farm, adminKeyPair.publicKey);
 
   const params = {
     price: new BN(parsePrice(initData.price)),
@@ -47,16 +47,18 @@ export const initializeCandyMachine = async <CandyMachineInitData>(initData) => 
   };
 
   console.log('\n take this address and replace on /constants.ts');
-  console.log('\n candyMachine address: ', candyMachine.toString());
+  console.log('\n farm address: ', farm.toString());
 
   const accounts = {
-    candyMachine,
+    farm,
     authority: provider.wallet.publicKey,
     systemProgram: SystemProgram.programId,
   };
 
-  await program.methods
-    .initializeCandyMachine(params)
+  const txn = await program.methods
+    .initializeFarm(params)
     .accounts(accounts)
     .rpc();
+
+  console.log('Completed initialization of farm.', txn);
 }

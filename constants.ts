@@ -14,12 +14,12 @@ export const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
 export const PREFIX = 'hard-glass-bookshelf';
 
 /* replace the following with your own pubkeys */
-export const CANDY_MACHINE_PUBLIC_KEY = new PublicKey(
-  'Ax2XcEju3HYbsxtKeBUPrP7r1zvq44wayNcemNXFG5zw'
+export const FARM_PUBLIC_KEY = new PublicKey(
+  'BFvcMZ1RxhbMu5xJ2xxaejYJa3LX8rswYr4rbj3Yzzns'
 );
 
-export const CANDY_MACHINE_PROGRAM_ID = new PublicKey(
-  '7FU1DwsTzUheVH4rQBy4ZM89fMMDwJeS5wBVh1dpRVyC'
+export const FARM_PROGRAM_ID = new PublicKey(
+  'C1f5CTDEJ1ujVQoaB6ySCAXDWPS4BQnsRgCmW5KiQVRP'
 );
 
 export const DEFAULT_TIMEOUT = 30000;

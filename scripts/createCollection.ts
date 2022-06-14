@@ -28,17 +28,17 @@ import {
 } from '../utils';
 import { TOKEN_METADATA_PROGRAM_ID, PREFIX } from '../constants';
 import { sendTransactionWithRetryWithKeypair } from '../helpers';
-import idl from '../target/idl/nft_buoy.json';
+import idl from '../target/idl/farm.json';
 
 type CreateCollectionArguments = {
   walletKeyPair: Keypair,
   anchorProgram: Program,
-  candyMachineAddress: PublicKey
+  farmAddress: PublicKey
 }
 
 export const createCollection = async ({
   anchorProgram,
-  candyMachineAddress,
+  farmAddress,
   walletKeyPair 
 }: CreateCollectionArguments) => {
   const wallet = loadWalletKey(walletKeyPair);
@@ -50,8 +50,8 @@ export const createCollection = async ({
   let collectionPDAPubkey: PublicKey;
   let collectionAuthorityRecordPubkey: PublicKey;
 
-  const candyMachine: any = await anchorProgram.account.candyMachine.fetch(
-    candyMachineAddress,
+  const farm: any = await anchorProgram.account.farm.fetch(
+    farmAddress,
   );
 
   const mint = web3.Keypair.generate();
@@ -60,7 +60,7 @@ export const createCollection = async ({
   
   metadataPubkey = await getMetadata(mintPubkey);
   masterEditionPubkey = await getMasterEdition(mintPubkey);
-  [collectionPDAPubkey] = await getCollectionPDA(candyMachineAddress, wallet.publicKey);
+  [collectionPDAPubkey] = await getCollectionPDA(farmAddress, wallet.publicKey);
   [collectionAuthorityRecordPubkey] = await getCollectionAuthorityRecordPDA(
     mintPubkey,
     collectionPDAPubkey,
@@ -113,10 +113,10 @@ export const createCollection = async ({
   );
 
   const data = new DataV2({
-    symbol: candyMachine.data.symbol ?? '',
+    symbol: farm.data.symbol ?? '',
     name: 'Collection NFT',
     uri: '',
-    sellerFeeBasisPoints: candyMachine.data.seller_fee_basis_points,
+    sellerFeeBasisPoints: farm.data.seller_fee_basis_points,
     creators: [
       new Creator({
         address: wallet.publicKey.toBase58(),
@@ -160,7 +160,7 @@ export const createCollection = async ({
   instructions.push(
     await anchorProgram.instruction.setCollection({
       accounts: {
-        candyMachine: candyMachineAddress,
+        farm: farmAddress,
         authority: wallet.publicKey,
         collectionPda: collectionPDAPubkey,
         payer: wallet.publicKey,
@@ -175,7 +175,7 @@ export const createCollection = async ({
     }),
   );
 
-  console.log('Candy machine address: ', candyMachineAddress.toBase58());
+  console.log('Farm address: ', farmAddress.toBase58());
   console.log('Collection metadata address: ', metadataPubkey.toBase58());
   console.log('Collection metadata authority: ', wallet.publicKey.toBase58());
   console.log(
@@ -190,7 +190,7 @@ export const createCollection = async ({
   );
 
   const collectionKeys = {
-    candyMachineAddress: candyMachineAddress.toBase58(),
+    farmAddress: farmAddress.toBase58(),
     collectionMetadata: metadataPubkey.toBase58(),
     collectionMetadataAuthority: wallet.publicKey.toBase58(),
     collectionMasterEdition: masterEditionPubkey.toBase58(),
@@ -215,18 +215,18 @@ export const createCollection = async ({
   };
   console.log('Completed transaction', toReturn);
 
-  const [candyMachinePDA] = await PublicKey.findProgramAddress(
+  const [farmPDA] = await PublicKey.findProgramAddress(
     [Buffer.from(PREFIX)],
     new PublicKey(idl.metadata.address)
   );
 
   const updateCollectionAccounts = {
-    candyMachine: candyMachinePDA,
+    farm: farmPDA,
     authority: wallet.publicKey
   };
 
   await program.methods
-    .updateCandyMachineCollection(mintPubkey)
+    .updateFarmCollection(mintPubkey)
     .accounts(updateCollectionAccounts)
     .rpc();
 

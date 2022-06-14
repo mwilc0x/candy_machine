@@ -8,26 +8,25 @@ use solana_program::program::invoke;
 use {
   crate::{
       constants::{COLLECTION_PDA_SIZE},
-      error::CandyError,
-      state::{CandyMachine, CollectionPDA},
+      error::FarmError,
+      state::{Farm, CollectionPDA},
       utils::{cmp_pubkeys}
   },
 };
 
-/// Set the collection PDA for the candy machine
+/// Set the collection PDA for the farm machine
 #[derive(Accounts)]
 pub struct SetCollection<'info> {
     #[account(mut, has_one = authority)]
-    candy_machine: Account<'info, CandyMachine>,
+    farm: Account<'info, Farm>,
     #[account(mut)]
     authority: Signer<'info>,
     /// CHECK: account constraints checked in account trait
     #[account(
-        mut, 
+        mut,
         seeds = [
             b"collection".as_ref(), 
-            candy_machine.to_account_info().key.as_ref(),
-            authority.to_account_info().key.as_ref()
+            farm.to_account_info().key.as_ref()
         ], 
         bump
     )]
@@ -56,15 +55,22 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata.to_account_info())?;
 
     if !cmp_pubkeys(&metadata.update_authority, &ctx.accounts.authority.key()) {
-        return err!(CandyError::IncorrectCollectionAuthority);
+        return err!(FarmError::IncorrectCollectionAuthority);
     };
     if !cmp_pubkeys(&metadata.mint, &mint.key()) {
-        return err!(CandyError::MintMismatch);
+        return err!(FarmError::MintMismatch);
     }
 
     let edition = ctx.accounts.edition.to_account_info();
     let authority_record = ctx.accounts.collection_authority_record.to_account_info();
-    let candy_machine = &mut ctx.accounts.candy_machine;
+    let farm = &mut ctx.accounts.farm;
+    let collection_pda = &mut ctx.accounts.collection_pda;
+
+    msg!(
+        "Setting collection for farm machine: {} {}.",
+        farm.key(),
+        collection_pda.key()
+    );
 
     assert_master_edition(&metadata, &edition)?;
 
@@ -112,8 +118,7 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
             COLLECTION_PDA_SIZE,
             &[
                 b"collection".as_ref(),
-                candy_machine.key().as_ref(),
-                ctx.accounts.authority.key().as_ref(),
+                farm.key().as_ref(),
                 &[*ctx.bumps.get("collection_pda").unwrap()],
             ],
         )?;
@@ -121,9 +126,9 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
     let mut data_ref: &mut [u8] = &mut ctx.accounts.collection_pda.try_borrow_mut_data()?;
     let mut collection_pda_object: CollectionPDA = AnchorDeserialize::deserialize(&mut &*data_ref)?;
     collection_pda_object.mint = mint.key();
-    collection_pda_object.candy_machine = candy_machine.key();
+    collection_pda_object.farm = farm.key();
     collection_pda_object.try_serialize(&mut data_ref)?;
-    // set_feature_flag(&mut candy_machine.data.uuid, COLLECTIONS_FEATURE_INDEX);
+    // set_feature_flag(&mut farm.data.uuid, COLLECTIONS_FEATURE_INDEX);
 
     Ok(())
 }

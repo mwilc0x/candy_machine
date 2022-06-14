@@ -1,0 +1,14 @@
+{
+  "name":"Amoebit #1",
+  "description":"An Amoebit.",
+  "attributes":[
+    {"trait_type":"Splat","value":"Small blue"},
+    {"trait_type":"Core","value":"Sword"},
+    {"trait_type":"Body","value":"Green"},
+    {"trait_type":"Mouth","value":"Creeper"},
+    {"trait_type":"Eyes","value":"Stare"},
+    {"trait_type":"Head","value":"Pink kitten"},
+    {"trait_type":"Hand","value":"Orange juice"}
+  ],
+  "image":"https:\/\/amoebits.io\/images\/series\/amoebits\/1.png"
+}

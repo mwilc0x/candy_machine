@@ -7,18 +7,17 @@
     "@types/node": "^17.0.0",
     "dotenv": "^16.0.1",
     "loglevel": "^1.8.0",
+    "node-fetch": "2",
     "text-encoding": "^0.7.0",
     "yargs": "^17.5.1"
   },
   "scripts": {
-    "sanity-test": "cargo test-bpf --manifest-path=./programs/nft_buoy/Cargo.toml",
+    "sanity-test": "cargo test-bpf --manifest-path=./programs/farm/Cargo.toml",
     "lint": "npx eslint --ext .js,.ts ./ --fix",
     "build-types": "tsc --noEmit --pretty",
-    "test-mint": "anchor run test_mint",
-    "test-candy": "anchor run test_init_candy_machine",
-    "test-update_candy": "anchor run test_update_candy_machine",
-    "test-create_collection": "anchor run test_create_collection",
-    "test-get_cm_state": "anchor run test_get_cm_state"
+    "mint": "anchor run test_mint",
+    "init-farm": "anchor run init_farm",
+    "init-collection": "anchor run init_collection"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",

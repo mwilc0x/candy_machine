@@ -21,7 +21,7 @@ import {
 import {
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_METADATA_PROGRAM_ID,
-  CANDY_MACHINE_PROGRAM_ID
+  FARM_PROGRAM_ID
 } from './constants';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
@@ -88,22 +88,22 @@ export const getMasterEdition = async (
 };
 
 export const getCreatorPDA = async (
-  candyMachineAddress: web3.PublicKey,
+  farmAddress: web3.PublicKey,
   creator: web3.PublicKey,
 ): Promise<[web3.PublicKey, number]> => {
   return await web3.PublicKey.findProgramAddress(
-    [Buffer.from('creator'), candyMachineAddress.toBuffer(), creator.toBuffer()],
-    CANDY_MACHINE_PROGRAM_ID,
+    [Buffer.from('creator'), farmAddress.toBuffer(), creator.toBuffer()],
+    FARM_PROGRAM_ID,
   );
 };
 
 export const getCollectionPDA = async (
-  candyMachineAddress: web3.PublicKey,
+  farmAddress: web3.PublicKey,
   ownerAddress: web3.PublicKey,
 ): Promise<[web3.PublicKey, number]> => {
   return await web3.PublicKey.findProgramAddress(
-    [Buffer.from('collection'), candyMachineAddress.toBuffer(), ownerAddress.toBuffer()],
-    CANDY_MACHINE_PROGRAM_ID,
+    [Buffer.from('collection'), farmAddress.toBuffer()],
+    FARM_PROGRAM_ID,
   );
 };
 
@@ -161,4 +161,4 @@ export const provider = AnchorProvider.env();
 setProvider(provider);
 
 export const DEVNET_WALLET = provider.wallet;
-export const program = workspace.NftBuoy as Program<Idl>;
+export const program = workspace.Farm as Program<Idl>;
