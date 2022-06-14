@@ -20,7 +20,7 @@ pub struct Farm {
     pub farm_manager: Pubkey,
 
     /// used for collecting any fees earned by the farm
-    pub farm_treasury: Pubkey,
+    // pub farm_treasury: Pubkey,
 
     /// signs off on treasury payouts and on any operations related to the bank
     /// (configured as bank manager)
@@ -29,6 +29,17 @@ pub struct Farm {
     pub farm_authority_seed: Pubkey,
 
     pub farm_authority_bump_seed: [u8; 1],
+
+    pub bank: Pubkey,
+}
+
+impl Farm {
+    pub fn farm_seeds(&self) -> [&[u8]; 2] {
+        [
+            self.farm_authority_seed.as_ref(),
+            &self.farm_authority_bump_seed,
+        ]
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, Debug)]

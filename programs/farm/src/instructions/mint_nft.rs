@@ -56,41 +56,13 @@ pub struct MintNFT<'info> {
     /// CHECK: Unsafe
     #[account(mut)]
     pub creator: AccountInfo<'info>,
-
-    /// CHECK: account constraints checked in account trait
-    #[account(
-        mut, 
-        seeds = [
-            b"collection".as_ref(), 
-            farm.to_account_info().key.as_ref(),
-        ], 
-        bump
-    )]
-    pub collection_pda: UncheckedAccount<'info>,
-
-    // /// CHECK: account constraints checked in account trait
-    // #[account(
-    //     mut, 
-    //     seeds = [
-    //         b"creator".as_ref(), 
-    //         farm.to_account_info().key.as_ref(),
-    //     ], 
-    //     bump
-    // )]
-    // pub creator_pda: UncheckedAccount<'info>,
 }
 
 pub fn handle_mint_nft(ctx: Context<MintNFT>, nft_name: String, nft_uri: String) -> Result<()> {
 
     let farm = &mut ctx.accounts.farm;
-    let collection_pda = &mut ctx.accounts.collection_pda;
-    let now = Clock::get()?.unix_timestamp;
 
-    msg!(
-        "Minting NFT with farm: {} {}.",
-        farm.key(),
-        collection_pda.key()
-    );
+    let now = Clock::get()?.unix_timestamp;
 
     if let Some(go_live_date) = farm.data.go_live_date {
         /* only the authority can mint before the launch date */
@@ -230,65 +202,6 @@ pub fn handle_mint_nft(ctx: Context<MintNFT>, nft_name: String, nft_uri: String)
         ],
         &[&authority_seeds],
     )?;
-
-    // let farm_key = ctx.accounts.farm.key();
-    // let creator_key = ctx.accounts.creator.key();
-
-    // let creator_authority_seeds = [
-    //     b"creator".as_ref(), 
-    //     farm_key.as_ref(),
-    //     creator_key.as_ref(),
-    //     &[*ctx.bumps.get("creator_pda").unwrap()]
-    // ];
-
-    // msg!("Creator: {:?}", creator_key);
-    // invoke_signed(
-    //     &sign_metadata(
-    //         ctx.accounts.token_metadata_program.key(),
-    //         ctx.accounts.metadata.key(),
-    //         ctx.accounts.creator.key(), // this is the signer
-    //     ),
-    //     &[
-    //         ctx.accounts.token_metadata_program.clone(),
-    //         ctx.accounts.metadata.clone(),
-    //         ctx.accounts.creator_pda.to_account_info().clone(),
-    //         ctx.accounts.creator.to_account_info().clone()
-    //     ],
-    //     &[&creator_authority_seeds],
-    // )?;
-
-    // let collection_infos = vec![
-    //     ctx.accounts.metadata.to_account_info().clone(),
-    //     // derived from PDA collectionPDA
-    //     ctx.accounts.collection_pda.to_account_info().clone(), // mint authority 
-    //     // derived from PDA collectionPDA
-    //     ctx.accounts.mint_authority.to_account_info().clone(), // payer
-    //     ctx.accounts.collection_mint.to_account_info().clone(),
-    //     ctx.accounts.collection_metadata.to_account_info().clone(),
-    //     ctx.accounts.collection_master_edition.to_account_info().clone(),
-    // ];
-
-    // let collection_authority_seeds = [
-    //     b"collection".as_ref(), 
-    //     farm_key.as_ref(),
-    //     &[*ctx.bumps.get("collection_pda").unwrap()]
-    // ];
-
-    // // verify collection
-    // invoke_signed(
-    //     &verify_collection(
-    //         ctx.accounts.token_metadata_program.key(),
-    //         ctx.accounts.metadata.key(),
-    //         ctx.accounts.collection_pda.key(),
-    //         ctx.accounts.mint_authority.key(),
-    //         ctx.accounts.collection_mint.key(),
-    //         ctx.accounts.collection_metadata.key(),
-    //         ctx.accounts.collection_master_edition.key(),
-    //         None,
-    //     ),
-    //     collection_infos.as_slice(),
-    //     &[&collection_authority_seeds],
-    // )?;
 
     Ok(())
 }

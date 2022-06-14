@@ -3,9 +3,6 @@ use {
 };
 use instructions::*;
 use state::*;
-// use error::*;
-// use constants::*;
-// use utils::*;
 
 pub mod instructions;
 pub mod state;
@@ -13,7 +10,7 @@ pub mod error;
 pub mod constants;
 pub mod utils;
 
-declare_id!("C1f5CTDEJ1ujVQoaB6ySCAXDWPS4BQnsRgCmW5KiQVRP");
+declare_id!("HGqZYyZuJfBs5sskdoBWcjRs6mCMCwDUQTYc3yK9mH6S");
 
 #[program]
 pub mod farm {
@@ -23,11 +20,19 @@ pub mod farm {
         handle_set_collection(ctx)
     }
 
+    pub fn update_farm_collection(ctx: Context<UpdateFarm>, collection_mint_key: Option<Pubkey>) -> Result<()> {
+        handle_update_farm_collection(ctx, collection_mint_key)
+    }
+
     pub fn mint_nft(ctx: Context<MintNFT>, nft_name: String, nft_uri: String) -> Result<()> {
         handle_mint_nft(ctx, nft_name, nft_uri)
     }
 
-    pub fn initialize_farm(ctx: Context<InitializeFarm>, data: FarmData) -> Result<()> {
-        handle_initialize_farm(ctx, data)
+    pub fn init_farm(
+        ctx: Context<InitFarm>, 
+        bump_auth: u8,
+        data: FarmData
+    ) -> Result<()> {
+        instructions::init_farm::handler(ctx, bump_auth, data)
     }
 }

@@ -8,8 +8,8 @@ import {
   getCreatorPDA
 } from '../utils';
 
-import { PREFIX } from '../constants'
-import idl from '../target/idl/farm.json'
+import farmIDL from '../target/idl/farm.json'
+import bankIDL from '../target/idl/bank.json'
 
 type FarmInitData = {
   keypair: Keypair,
@@ -25,13 +25,15 @@ export const initializeFarm = async <FarmInitData>(initData) => {
   let creatorPDAPubkey;
   const adminKeyPair = loadWalletKey(initData.keypair);
 
+  const farm = Keypair.generate();
+
   /* generating a PDA */
-  const [farm] = await PublicKey.findProgramAddress(
-    [Buffer.from(PREFIX)],
-    new PublicKey(idl.metadata.address)
+  const [farmAuth, farmAuthBump] = await PublicKey.findProgramAddress(
+    [farm.publicKey.toBytes()],
+    new PublicKey(farmIDL.metadata.address),
   );
 
-  [creatorPDAPubkey] = await getCreatorPDA(farm, adminKeyPair.publicKey);
+  [creatorPDAPubkey] = await getCreatorPDA(farm.publicKey, adminKeyPair.publicKey);
 
   const params = {
     price: new BN(parsePrice(initData.price)),
@@ -47,17 +49,25 @@ export const initializeFarm = async <FarmInitData>(initData) => {
   };
 
   console.log('\n take this address and replace on /constants.ts');
-  console.log('\n farm address: ', farm.toString());
+  console.log('\n farm address: ', farm.publicKey.toString());
+
+  const signers = [farm, adminKeyPair];
 
   const accounts = {
-    farm,
+    farm: farm.publicKey,
     authority: provider.wallet.publicKey,
+    farmAuthority: farmAuth,
+    farmManager: provider.wallet.publicKey,
+    bank: provider.wallet.publicKey,
+    artBank: new PublicKey(bankIDL.metadata.address),
+    payer: provider.wallet.publicKey,
     systemProgram: SystemProgram.programId,
   };
 
   const txn = await program.methods
-    .initializeFarm(params)
+    .initFarm(farmAuthBump, params)
     .accounts(accounts)
+    .signers(signers)
     .rpc();
 
   console.log('Completed initialization of farm.', txn);

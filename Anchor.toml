@@ -1,12 +1,13 @@
 [programs.devnet]
-farm = "C1f5CTDEJ1ujVQoaB6ySCAXDWPS4BQnsRgCmW5KiQVRP"
+farm = "HGqZYyZuJfBs5sskdoBWcjRs6mCMCwDUQTYc3yK9mH6S"
+bank = "ChNJdVCzoAxQM5u6d56M39jpwVxd77M31k9fnz9pFzhj"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
 cluster = "devnet"
-wallet = "~/solana/farm/.wallets/cm-authority/id-devnet.json"
+wallet = "~/solana/art_farm/.wallets/cm-authority/id-devnet.json"
 
 [scripts]
 test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=./.wallets/person-minting/id-devnet.json"
