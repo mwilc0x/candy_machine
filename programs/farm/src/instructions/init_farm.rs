@@ -13,9 +13,6 @@ pub struct InitFarm<'info> {
     /// CHECK:
     #[account(mut, seeds = [farm.key().as_ref()], bump = bump_auth)]
     pub farm_authority: AccountInfo<'info>,
-    // /// CHECK:
-    // #[account(seeds = [b"treasury".as_ref(), farm.key().as_ref()], bump = bump_treasury)]
-    // pub farm_treasury: AccountInfo<'info>,
 
     /* the authority will also receive SOL from sales fees */
     #[account(mut)]

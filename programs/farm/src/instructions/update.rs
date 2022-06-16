@@ -3,11 +3,9 @@ use crate::state::Farm;
 
 #[derive(Accounts)]
 pub struct UpdateFarm<'info> {
-    #[account(mut, has_one = authority)]
+    #[account(mut, has_one = farm_manager)]
     farm: Account<'info, Farm>,
-    #[account(mut)]
-    authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
+    farm_manager: Signer<'info>,
 }
 
 pub fn handle_update_farm_collection(

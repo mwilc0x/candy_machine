@@ -10,7 +10,7 @@ pub mod error;
 pub mod constants;
 pub mod utils;
 
-declare_id!("HGqZYyZuJfBs5sskdoBWcjRs6mCMCwDUQTYc3yK9mH6S");
+declare_id!("BbNeEhJmVCyXHc28TvFowCJgZuTUsCszjcwMhQ7uxjQs");
 
 #[program]
 pub mod farm {
@@ -24,8 +24,13 @@ pub mod farm {
         handle_update_farm_collection(ctx, collection_mint_key)
     }
 
-    pub fn mint_nft(ctx: Context<MintNFT>, nft_name: String, nft_uri: String) -> Result<()> {
-        handle_mint_nft(ctx, nft_name, nft_uri)
+    pub fn mint_nft(
+        ctx: Context<MintNFT>,
+        bump_auth: u8, 
+        nft_name: String, 
+        nft_uri: String
+    ) -> Result<()> {
+        handle_mint_nft(ctx, bump_auth, nft_name, nft_uri)
     }
 
     pub fn init_farm(

@@ -14,7 +14,8 @@
   "scripts": {
     "mint": "anchor run test_mint",
     "init-farm": "anchor run init_farm",
-    "init-collection": "anchor run init_collection"
+    "init-collection": "anchor run init_collection",
+    "farm-acct": "anchor run farm_acct_info"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",

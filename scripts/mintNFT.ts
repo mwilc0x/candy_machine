@@ -3,6 +3,7 @@ import {
   Keypair,
   SystemProgram,
   SYSVAR_RENT_PUBKEY,
+  PublicKey
 } from '@solana/web3.js';
 import { FARM_PUBLIC_KEY, TOKEN_METADATA_PROGRAM_ID } from '../constants';
 import {
@@ -10,23 +11,24 @@ import {
   getMetadata,
   getTokenWallet,
   loadWalletKey,
-  program,
+  farmProgram,
   provider,
-  getCreatorPDA
+  getFarmAuthority
 } from '../utils';
-import collectionKeys from '../collection-keys.json';
+
+import farmIDL from '../target/idl/farm.json'
 
 export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
   /* make sure to replace the const 'farm' */
   /* on /constants.ts with your own address,
   that you will get by running scripts/initializeFarm.ts */
-  const farmState = await program.account.farm.fetch(
+  const farmState = await farmProgram.account.farm.fetch(
     FARM_PUBLIC_KEY
   );
   
   const mint = Keypair.generate();
   const payer = loadWalletKey(keypair);
-  const collectionKeyPair = loadWalletKey("./.wallets/cm-authority/id-devnet.json");
+  // const creator = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/creator.json");
 
   const userTokenAccountAddress = await getTokenWallet(
     payer.publicKey,
@@ -38,19 +40,17 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
     MintLayout.span
   );
 
-  let creatorPDAPubkey;
-  [creatorPDAPubkey] = await getCreatorPDA(FARM_PUBLIC_KEY, collectionKeyPair.publicKey);
-
-  const {
-    collectionMint,
-    collectionMetadata,
-    collectionMasterEdition,
-    collectionPda
-  } = collectionKeys;
+  const farm = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/farm.json");
+  /* generating a PDA */
+  const [farmAuth, farmAuthBump] = await PublicKey.findProgramAddress(
+    [farm.publicKey.toBytes()],
+    new PublicKey(farmIDL.metadata.address),
+  );
 
   const accounts = {
     farm: FARM_PUBLIC_KEY,
     authority: farmState.authority,
+    farmAuthority: farmAuth,
     mint: mint.publicKey,
     metadata,
     mintAuthority: payer.publicKey,
@@ -58,21 +58,12 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
     tokenProgram: TOKEN_PROGRAM_ID,
     systemProgram: SystemProgram.programId,
     rent: SYSVAR_RENT_PUBKEY,
-
-    collectionMint,
-    collectionMetadata,
-    collectionMasterEdition,
-    collectionPda,
-    creator: collectionKeyPair.publicKey,
-    // creatorPda: creatorPDAPubkey
   };
 
-  console.log('minting for ', payer.publicKey.toString());
-
-  const result = await program.methods
-    .mintNft('Shrek #1', 'https://api.amoebits.io/get/amoebits_1')
+  const result = await farmProgram.methods
+    .mintNft(farmAuthBump, 'Shrek #1', 'https://api.amoebits.io/get/amoebits_1')
     .accounts(accounts)
-    .signers([payer, mint])
+    .signers([mint, payer])
     .preInstructions([
       /* create a token/mint account and pay the rent */
       SystemProgram.createAccount({

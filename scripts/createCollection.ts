@@ -19,7 +19,7 @@ import {
   CreateMasterEditionV3,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
-  program,
+  farmProgram,
   loadWalletKey,
   getMasterEdition,
   getCollectionPDA,
@@ -32,17 +32,18 @@ import idl from '../target/idl/farm.json';
 
 type CreateCollectionArguments = {
   walletKeyPair: Keypair,
-  anchorProgram: Program,
+  farmProgram: Program,
   farmAddress: PublicKey
 }
 
 export const createCollection = async ({
-  anchorProgram,
+  farmProgram,
   farmAddress,
   walletKeyPair 
 }: CreateCollectionArguments) => {
-  const wallet = loadWalletKey(walletKeyPair);
-  const signers = [wallet];
+  // const wallet = loadWalletKey(walletKeyPair);
+  const creator = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/creator.json");
+  const signers = [creator];
   const instructions = [];
   let mintPubkey: PublicKey;
   let metadataPubkey: PublicKey;
@@ -50,7 +51,7 @@ export const createCollection = async ({
   let collectionPDAPubkey: PublicKey;
   let collectionAuthorityRecordPubkey: PublicKey;
 
-  const farm: any = await anchorProgram.account.farm.fetch(
+  const farm: any = await farmProgram.account.farm.fetch(
     farmAddress,
   );
 
@@ -60,7 +61,7 @@ export const createCollection = async ({
   
   metadataPubkey = await getMetadata(mintPubkey);
   masterEditionPubkey = await getMasterEdition(mintPubkey);
-  [collectionPDAPubkey] = await getCollectionPDA(farmAddress, wallet.publicKey);
+  [collectionPDAPubkey] = await getCollectionPDA(farmAddress, creator.publicKey);
   [collectionAuthorityRecordPubkey] = await getCollectionAuthorityRecordPDA(
     mintPubkey,
     collectionPDAPubkey,
@@ -71,17 +72,17 @@ export const createCollection = async ({
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint.publicKey,
-    wallet.publicKey,
+    creator.publicKey,
   );
 
   instructions.push(
     ...[
       web3.SystemProgram.createAccount({
-        fromPubkey: wallet.publicKey,
+        fromPubkey: creator.publicKey,
         newAccountPubkey: mintPubkey,
         space: MintLayout.span,
         lamports:
-          await anchorProgram.provider.connection.getMinimumBalanceForRentExemption(
+          await farmProgram.provider.connection.getMinimumBalanceForRentExemption(
             MintLayout.span,
           ),
         programId: TOKEN_PROGRAM_ID,
@@ -90,22 +91,22 @@ export const createCollection = async ({
         TOKEN_PROGRAM_ID,
         mintPubkey,
         0,
-        wallet.publicKey,
-        wallet.publicKey,
+        creator.publicKey,
+        creator.publicKey,
       ),
       Token.createAssociatedTokenAccountInstruction(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
         mintPubkey,
         userTokenAccountAddress,
-        wallet.publicKey,
-        wallet.publicKey,
+        creator.publicKey,
+        creator.publicKey,
       ),
       Token.createMintToInstruction(
         TOKEN_PROGRAM_ID,
         mintPubkey,
         userTokenAccountAddress,
-        wallet.publicKey,
+        creator.publicKey,
         [],
         1,
       ),
@@ -119,7 +120,7 @@ export const createCollection = async ({
     sellerFeeBasisPoints: farm.data.seller_fee_basis_points,
     creators: [
       new Creator({
-        address: wallet.publicKey.toBase58(),
+        address: creator.publicKey.toBase58(),
         verified: true,
         share: 100,
       }),
@@ -130,13 +131,13 @@ export const createCollection = async ({
 
   instructions.push(
     ...new CreateMetadataV2(
-      { feePayer: wallet.publicKey },
+      { feePayer: creator.publicKey },
       {
         metadata: metadataPubkey,
         metadataData: data,
-        updateAuthority: wallet.publicKey,
+        updateAuthority: creator.publicKey,
         mint: mintPubkey,
-        mintAuthority: wallet.publicKey,
+        mintAuthority: creator.publicKey,
       },
     ).instructions,
   );
@@ -144,26 +145,26 @@ export const createCollection = async ({
   instructions.push(
     ...new CreateMasterEditionV3(
       {
-        feePayer: wallet.publicKey,
+        feePayer: creator.publicKey,
       },
       {
         edition: masterEditionPubkey,
         metadata: metadataPubkey,
         mint: mintPubkey,
-        mintAuthority: wallet.publicKey,
-        updateAuthority: wallet.publicKey,
+        mintAuthority: creator.publicKey,
+        updateAuthority: creator.publicKey,
         maxSupply: new BN(0),
       },
     ).instructions,
   );
 
   instructions.push(
-    await anchorProgram.instruction.setCollection({
+    await farmProgram.instruction.setCollection({
       accounts: {
         farm: farmAddress,
-        authority: wallet.publicKey,
+        farmManager: creator.publicKey,
         collectionPda: collectionPDAPubkey,
-        payer: wallet.publicKey,
+        payer: creator.publicKey,
         systemProgram: SystemProgram.programId,
         rent: web3.SYSVAR_RENT_PUBKEY,
         metadata: metadataPubkey,
@@ -177,7 +178,7 @@ export const createCollection = async ({
 
   console.log('Farm address: ', farmAddress.toBase58());
   console.log('Collection metadata address: ', metadataPubkey.toBase58());
-  console.log('Collection metadata authority: ', wallet.publicKey.toBase58());
+  console.log('Collection metadata authority: ', creator.publicKey.toBase58());
   console.log(
     'Collection master edition address: ',
     masterEditionPubkey.toBase58(),
@@ -192,7 +193,7 @@ export const createCollection = async ({
   const collectionKeys = {
     farmAddress: farmAddress.toBase58(),
     collectionMetadata: metadataPubkey.toBase58(),
-    collectionMetadataAuthority: wallet.publicKey.toBase58(),
+    collectionMetadataAuthority: creator.publicKey.toBase58(),
     collectionMasterEdition: masterEditionPubkey.toBase58(),
     collectionMint: mintPubkey.toBase58(),
     collectionPda: collectionPDAPubkey.toBase58(),
@@ -203,8 +204,8 @@ export const createCollection = async ({
 
   const txId = (
     await sendTransactionWithRetryWithKeypair(
-      anchorProgram.provider.connection,
-      wallet,
+      farmProgram.provider.connection,
+      creator,
       instructions,
       signers, 
     )
@@ -215,19 +216,15 @@ export const createCollection = async ({
   };
   console.log('Completed transaction', toReturn);
 
-  const [farmPDA] = await PublicKey.findProgramAddress(
-    [Buffer.from(PREFIX)],
-    new PublicKey(idl.metadata.address)
-  );
-
   const updateCollectionAccounts = {
-    farm: farmPDA,
-    authority: wallet.publicKey
+    farm: farmAddress,
+    farmManager: creator.publicKey
   };
 
-  await program.methods
+  await farmProgram.methods
     .updateFarmCollection(mintPubkey)
     .accounts(updateCollectionAccounts)
+    .signers([creator])
     .rpc();
 
   return toReturn;

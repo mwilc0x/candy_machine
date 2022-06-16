@@ -17,10 +17,10 @@ use {
 /// Set the collection PDA for the farm machine
 #[derive(Accounts)]
 pub struct SetCollection<'info> {
-    #[account(mut, has_one = authority)]
-    farm: Account<'info, Farm>,
-    #[account(mut)]
-    authority: Signer<'info>,
+    #[account(mut, has_one = farm_manager)]
+    farm: Box<Account<'info, Farm>>,
+    farm_manager: Signer<'info>,
+
     /// CHECK: account constraints checked in account trait
     #[account(
         mut,
@@ -54,7 +54,7 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
     let mint = ctx.accounts.mint.to_account_info();
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata.to_account_info())?;
 
-    if !cmp_pubkeys(&metadata.update_authority, &ctx.accounts.authority.key()) {
+    if !cmp_pubkeys(&metadata.update_authority, &ctx.accounts.farm_manager.key()) {
         return err!(FarmError::IncorrectCollectionAuthority);
     };
     if !cmp_pubkeys(&metadata.mint, &mint.key()) {
@@ -78,7 +78,7 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
         let approve_collection_infos = vec![
             authority_record.clone(),
             ctx.accounts.collection_pda.to_account_info(),
-            ctx.accounts.authority.to_account_info(),
+            ctx.accounts.farm_manager.to_account_info(),
             ctx.accounts.payer.to_account_info(),
             ctx.accounts.metadata.to_account_info(),
             mint.clone(),
@@ -95,7 +95,7 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
                 ctx.accounts.token_metadata_program.key(),
                 authority_record.key(),
                 ctx.accounts.collection_pda.to_account_info().key(),
-                ctx.accounts.authority.key(),
+                ctx.accounts.farm_manager.key(),
                 ctx.accounts.payer.key(),
                 ctx.accounts.metadata.key(),
                 *mint.key,
@@ -114,7 +114,7 @@ pub fn handle_set_collection(ctx: Context<SetCollection>) -> Result<()> {
             &ctx.accounts.collection_pda.to_account_info(),
             &ctx.accounts.rent.to_account_info(),
             &ctx.accounts.system_program.to_account_info(),
-            &ctx.accounts.authority.to_account_info(),
+            &ctx.accounts.farm_manager.to_account_info(),
             COLLECTION_PDA_SIZE,
             &[
                 b"collection".as_ref(),

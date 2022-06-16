@@ -19,15 +19,15 @@ export const BANK_PUBLIC_KEY = new PublicKey(
 );
 
 export const BANK_PROGRAM_ID = new PublicKey(
-  'ChNJdVCzoAxQM5u6d56M39jpwVxd77M31k9fnz9pFzhj'
+  '8VWkHD4LHMtHz4Er1AVkGvAnJbtLYrbC13JCHNyvDDYL'
 );
 
 export const FARM_PUBLIC_KEY = new PublicKey(
-  'FoHiR2tUuCYCMuLKim3zQKxd7AWC5cwVD3vuZggPDUYB'
+  'NTfXMGdZz9cdTxkKAydXGN19FEJ9GkHX1PSE89djkdv'
 );
 
 export const FARM_PROGRAM_ID = new PublicKey(
-  'HGqZYyZuJfBs5sskdoBWcjRs6mCMCwDUQTYc3yK9mH6S'
+  'BbNeEhJmVCyXHc28TvFowCJgZuTUsCszjcwMhQ7uxjQs'
 );
 
 export const DEFAULT_TIMEOUT = 30000;

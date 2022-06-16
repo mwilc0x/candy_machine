@@ -1,15 +1,16 @@
 [programs.devnet]
-farm = "HGqZYyZuJfBs5sskdoBWcjRs6mCMCwDUQTYc3yK9mH6S"
-bank = "ChNJdVCzoAxQM5u6d56M39jpwVxd77M31k9fnz9pFzhj"
+farm = "BbNeEhJmVCyXHc28TvFowCJgZuTUsCszjcwMhQ7uxjQs"
+bank = "8VWkHD4LHMtHz4Er1AVkGvAnJbtLYrbC13JCHNyvDDYL"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
 cluster = "devnet"
-wallet = "~/solana/art_farm/.wallets/cm-authority/id-devnet.json"
+wallet = "~/.config/solana/test/art_farm/devnet/payer.json"
 
 [scripts]
-test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=./.wallets/person-minting/id-devnet.json"
-init_farm = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeFarm.ts --keypair=./.wallets/cm-authority/id-devnet.json"
-init_collection = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/createCollection.ts --keypair=./.wallets/cm-authority/id-devnet.json"
+test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/testBuyer.json"
+init_farm = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeFarm.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/farmAuthority.json"
+init_collection = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/createCollection.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/creator.json"
+farm_acct_info = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/fetchFarmAcc.ts"

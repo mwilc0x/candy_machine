@@ -3,8 +3,7 @@ import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { 
   loadWalletKey, 
   parsePrice, 
-  program, 
-  provider,
+  farmProgram, 
   getCreatorPDA
 } from '../utils';
 
@@ -22,25 +21,32 @@ type FarmInitData = {
 };
 
 export const initializeFarm = async <FarmInitData>(initData) => {
-  let creatorPDAPubkey;
-  const adminKeyPair = loadWalletKey(initData.keypair);
+  const farm = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/farm.json");
+  const creator = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/creator.json");
+  const payer = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/payer.json");
+  const bank = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/bank.json");
+  const sales = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/sales.json");
+  const manager = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/manager.json");
 
-  const farm = Keypair.generate();
-
-  /* generating a PDA */
+  /* generate Farm Authority PDA */
   const [farmAuth, farmAuthBump] = await PublicKey.findProgramAddress(
     [farm.publicKey.toBytes()],
     new PublicKey(farmIDL.metadata.address),
   );
 
-  [creatorPDAPubkey] = await getCreatorPDA(farm.publicKey, adminKeyPair.publicKey);
+  // /* generate Creator Authority PDA */
+  // const [creatorAuth, creatorAuthBump] = await PublicKey.findProgramAddress(
+  //   [creator.publicKey.toBytes()],
+  //   new PublicKey(farmIDL.metadata.address),
+  // );
 
   const params = {
     price: new BN(parsePrice(initData.price)),
     nftsMinted: new BN(0),
     goLiveDate: new BN(initData.goLiveDate),
     creators: [
-      { address: adminKeyPair.publicKey, verified: true, share: 100 }
+      // we verify later with PDA
+      { address: creator.publicKey, verified: false, share: 100 }
     ],
     symbol: initData.symbol,
     sellerFeeBasisPoints: initData.sellerFeeBasisPoints, // 500 = 5%
@@ -51,20 +57,39 @@ export const initializeFarm = async <FarmInitData>(initData) => {
   console.log('\n take this address and replace on /constants.ts');
   console.log('\n farm address: ', farm.publicKey.toString());
 
-  const signers = [farm, adminKeyPair];
+  const signers = [farm, payer, bank, sales, manager];
+
+  console.log(`
+    farm ${farm.publicKey.toString()}
+    farmAuth ${farmAuth.toString()}
+    payer ${payer.publicKey.toString()}
+    sales ${sales.publicKey.toString()}
+    manager ${manager.publicKey.toString()}
+  `);
 
   const accounts = {
     farm: farm.publicKey,
-    authority: provider.wallet.publicKey,
+    // receives all sales of nft
+    authority: sales.publicKey,
+
+    // can sign for metadata
     farmAuthority: farmAuth,
-    farmManager: provider.wallet.publicKey,
-    bank: provider.wallet.publicKey,
+    
+    // // can sign for creator
+    // creatorAuthority: creatorAuth,
+
+    farmManager: manager.publicKey,
+    
+    bank: bank.publicKey,
     artBank: new PublicKey(bankIDL.metadata.address),
-    payer: provider.wallet.publicKey,
+    
+    // this has to be someone completely separate
+    payer: payer.publicKey,
+
     systemProgram: SystemProgram.programId,
   };
 
-  const txn = await program.methods
+  const txn = await farmProgram.methods
     .initFarm(farmAuthBump, params)
     .accounts(accounts)
     .signers(signers)

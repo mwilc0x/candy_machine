@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { createCollection } from '../scripts/createCollection';
-import { program } from '../utils';
+import { farmProgram } from '../utils';
 import { FARM_PUBLIC_KEY } from '../constants';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
@@ -12,8 +12,8 @@ describe('Creating a collection', () => {
     const farmAddress = new PublicKey(FARM_PUBLIC_KEY);
     await createCollection({ 
       walletKeyPair: keypair,
-      anchorProgram: program,
-      farmAddress
+      farmProgram,
+      farmAddress,
     })
   });
 });

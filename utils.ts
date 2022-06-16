@@ -21,7 +21,8 @@ import {
 import {
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_METADATA_PROGRAM_ID,
-  FARM_PROGRAM_ID
+  FARM_PROGRAM_ID,
+  FARM_PUBLIC_KEY
 } from './constants';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
@@ -56,6 +57,17 @@ export const createAssociatedTokenAccountInstruction = (
   });
 
   return account;
+}
+
+export const getFarmAuthority = async (): Promise<[PublicKey, number]> => {
+  return (
+    await PublicKey.findProgramAddress(
+      [
+        FARM_PUBLIC_KEY.toBytes(),
+      ],
+      FARM_PROGRAM_ID
+    )
+  );
 }
 
 export const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
@@ -161,4 +173,5 @@ export const provider = AnchorProvider.env();
 setProvider(provider);
 
 export const DEVNET_WALLET = provider.wallet;
-export const program = workspace.Farm as Program<Idl>;
+export const farmProgram = workspace.Farm as Program<Idl>;
+export const bankProgram = workspace.Bank as Program<Idl>;
