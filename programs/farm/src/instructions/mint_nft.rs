@@ -12,11 +12,13 @@ use solana_program::{
         instruction::{
             create_metadata_accounts_v2,
             update_metadata_accounts,
+            // sign_metadata
         }
     },
     anchor_lang::prelude::*,
     anchor_spl::token::Token
   };
+  use std::str::from_utf8;
   
   #[derive(Accounts)]
   #[instruction(bump_auth: u8)]
@@ -31,7 +33,7 @@ use solana_program::{
     /// CHECK:
     #[account(mut, seeds = [farm.key().as_ref()], bump = bump_auth)]
     pub farm_authority: AccountInfo<'info>,
-  
+
     #[account(mut)]
     /// CHECK: account checked in CPI
     pub metadata: AccountInfo<'info>,
@@ -50,8 +52,7 @@ use solana_program::{
     pub rent: Sysvar<'info, Rent>,
   }
   
-  pub fn handle_mint_nft(ctx: Context<MintNFT>, _bump_auth: u8, nft_name: String, nft_uri: String) -> Result<()> {
-  
+  pub fn handle_mint_nft(ctx: Context<MintNFT>, _bump_auth: u8) -> Result<()> {
     let farm = &mut ctx.accounts.farm;
     let farm_authority = &mut ctx.accounts.farm_authority;
     let now = Clock::get()?.unix_timestamp;
@@ -123,7 +124,7 @@ use solana_program::{
     ];
   
     let collection_info: Option<mpl_token_metadata::state::Collection>;
-  
+
     if let Some(collection_pub) = farm.data.collection_mint_key {
         collection_info = Some(mpl_token_metadata::state::Collection {
             verified: false,
@@ -132,7 +133,20 @@ use solana_program::{
     } else {
         collection_info = None;
     }
-  
+
+    // get name and URI here
+    let manifest_uri = &farm.data.manifest_uri;
+
+    let manifest_hash = from_utf8(manifest_uri).map_err(|err| {
+        msg!("Invalid UTF-8, from byte {}", err.valid_up_to());
+        ProgramError::InvalidInstructionData
+    })?;
+    msg!("Memo (len {}): {:?}", manifest_hash.len(), manifest_hash);
+
+    let nft_number = farm.data.nfts_minted - 1;
+    let name = "Kaleidoscope #".to_owned() + &nft_number.to_string();
+    let manifest = "https://api.nftbuoy.io/ipfs/".to_owned() + &manifest_hash + &"/manifest/".to_owned() + &nft_number.to_string() + &".json".to_owned();
+
     /* set the metadata of the NFT */
     invoke_signed(
         &create_metadata_accounts_v2(
@@ -142,9 +156,9 @@ use solana_program::{
             *ctx.accounts.mint_authority.key,
             *ctx.accounts.mint_authority.key,
             *ctx.accounts.farm_authority.key,
-            nft_name,
+            name,
             farm.data.symbol.to_string(),
-            nft_uri,
+            manifest,
             Some(creators),
             farm.data.seller_fee_basis_points, // royalties percentage in basis point 500 = 5%
             true,                                     // update auth is signer?
@@ -191,6 +205,6 @@ use solana_program::{
         ],
         &[&farm.farm_seeds()],
     )?;
-  
+
     Ok(())
 }

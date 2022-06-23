@@ -231,18 +231,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "bank"
-version = "0.0.1"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "mpl-token-metadata",
- "solana-program",
- "solana-security-txt",
- "spl-token",
-]
-
-[[package]]
 name = "base64"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -538,10 +526,10 @@ version = "0.0.1"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "bank",
  "mpl-token-metadata",
+ "serde",
+ "serde_json",
  "solana-program",
- "solana-security-txt",
  "spl-token",
 ]
 
@@ -1243,12 +1231,6 @@ dependencies = [
  "rustversion",
  "syn",
 ]
-
-[[package]]
-name = "solana-security-txt"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f14189df19df7f3977a7ea236ccae6cdc40855ab5baf1ab2796a091ef5c490d1"
 
 [[package]]
 name = "spl-associated-token-account"

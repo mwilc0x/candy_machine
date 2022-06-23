@@ -15,7 +15,9 @@
     "mint": "anchor run test_mint",
     "init-farm": "anchor run init_farm",
     "init-collection": "anchor run init_collection",
-    "farm-acct": "anchor run farm_acct_info"
+    "farm-acct": "anchor run farm_acct_info",
+    "bootstrap-wallets": "anchor run bootstrap_wallets",
+    "add-uris": "anchor run add_uris"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",

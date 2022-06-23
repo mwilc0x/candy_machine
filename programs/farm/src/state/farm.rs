@@ -12,25 +12,13 @@ pub struct Creator {
 #[derive(Default, Debug)]
 pub struct Farm {
     pub authority: Pubkey,
-    pub bump: u8,
     pub data: FarmData,
 
-    /// authorizes funders, whitelists mints/creators, sets farm config params
-    /// can update itself to another Pubkey
-    pub farm_manager: Pubkey,
-
-    /// used for collecting any fees earned by the farm
-    // pub farm_treasury: Pubkey,
-
-    /// signs off on treasury payouts and on any operations related to the bank
-    /// (configured as bank manager)
     pub farm_authority: Pubkey,
 
     pub farm_authority_seed: Pubkey,
 
     pub farm_authority_bump_seed: [u8; 1],
-
-    pub bank: Pubkey,
 }
 
 impl Farm {
@@ -52,6 +40,7 @@ pub struct FarmData {
     pub seller_fee_basis_points: u16,
     pub max_supply: Option<u64>,
     pub collection_mint_key: Option<Pubkey>,
+    pub manifest_uri: Vec<u8>,
 }
 
 /// Collection PDA account

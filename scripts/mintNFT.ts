@@ -25,7 +25,7 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
   const farmState = await farmProgram.account.farm.fetch(
     FARM_PUBLIC_KEY
   );
-  
+
   const mint = Keypair.generate();
   const payer = loadWalletKey(keypair);
   // const creator = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/creator.json");
@@ -61,7 +61,7 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
   };
 
   const result = await farmProgram.methods
-    .mintNft(farmAuthBump, 'Shrek #1', 'https://api.amoebits.io/get/amoebits_1')
+    .mintNft(farmAuthBump)
     .accounts(accounts)
     .signers([mint, payer])
     .preInstructions([
@@ -99,5 +99,5 @@ export const mintNFT = async ({ keypair }: { keypair: Keypair }) => {
     ])
     .rpc();
 
-    console.log('nft minted:', result);
+  console.log('nft minted:', result);
 }

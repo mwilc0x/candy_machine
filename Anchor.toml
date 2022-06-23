@@ -1,6 +1,6 @@
 [programs.devnet]
-farm = "BbNeEhJmVCyXHc28TvFowCJgZuTUsCszjcwMhQ7uxjQs"
-bank = "8VWkHD4LHMtHz4Er1AVkGvAnJbtLYrbC13JCHNyvDDYL"
+farm = "EjGZ21k9e6jYm5HCVTPVjNBgG7DJhoVtmman7dDrqLoZ"
+# bank = "5EMuxVuRsFDq9dNZzsPz6BFuY1CzndU9HW6dX7VWB3ez"
 
 [registry]
 url = "https://anchor.projectserum.com"
@@ -10,7 +10,9 @@ cluster = "devnet"
 wallet = "~/.config/solana/test/art_farm/devnet/payer.json"
 
 [scripts]
-test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/testBuyer.json"
-init_farm = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeFarm.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/farmAuthority.json"
+test_mint = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/mintNFT.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/minter.json"
+init_farm = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/initializeFarm.ts"
 init_collection = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/createCollection.ts --keypair=/Users/mike/.config/solana/test/art_farm/devnet/creator.json"
 farm_acct_info = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/fetchFarmAcc.ts"
+bootstrap_wallets = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/bootstrapWallets.ts"
+add_uris = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/addUris.ts"

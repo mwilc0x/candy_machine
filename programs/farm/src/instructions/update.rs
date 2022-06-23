@@ -10,13 +10,13 @@ pub struct UpdateFarm<'info> {
 
 pub fn handle_update_farm_collection(
   ctx: Context<UpdateFarm>,
-  collection_mint_key: Option<Pubkey>,
+  _collection_mint_key: Option<Pubkey>,
 ) -> Result<()> {
-  let farm = &mut ctx.accounts.farm;
+  let _farm = &mut ctx.accounts.farm;
   
-  if let Some(cmint) = collection_mint_key {
-      farm.data.collection_mint_key = Some(cmint);
-  };
+  // if let Some(cmint) = collection_mint_key {
+  //     farm.data.collection_mint_key = Some(cmint);
+  // };
 
   Ok(())
 }

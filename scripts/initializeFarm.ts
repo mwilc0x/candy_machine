@@ -1,14 +1,12 @@
 import { BN } from '@project-serum/anchor';
 import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
-import { 
-  loadWalletKey, 
-  parsePrice, 
-  farmProgram, 
-  getCreatorPDA
+import {
+  loadWalletKey,
+  parsePrice,
+  farmProgram,
 } from '../utils';
 
 import farmIDL from '../target/idl/farm.json'
-import bankIDL from '../target/idl/bank.json'
 
 type FarmInitData = {
   keypair: Keypair,
@@ -24,21 +22,13 @@ export const initializeFarm = async <FarmInitData>(initData) => {
   const farm = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/farm.json");
   const creator = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/creator.json");
   const payer = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/payer.json");
-  const bank = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/bank.json");
   const sales = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/sales.json");
-  const manager = loadWalletKey("/Users/mike/.config/solana/test/art_farm/devnet/manager.json");
 
   /* generate Farm Authority PDA */
   const [farmAuth, farmAuthBump] = await PublicKey.findProgramAddress(
     [farm.publicKey.toBytes()],
     new PublicKey(farmIDL.metadata.address),
   );
-
-  // /* generate Creator Authority PDA */
-  // const [creatorAuth, creatorAuthBump] = await PublicKey.findProgramAddress(
-  //   [creator.publicKey.toBytes()],
-  //   new PublicKey(farmIDL.metadata.address),
-  // );
 
   const params = {
     price: new BN(parsePrice(initData.price)),
@@ -51,21 +41,14 @@ export const initializeFarm = async <FarmInitData>(initData) => {
     symbol: initData.symbol,
     sellerFeeBasisPoints: initData.sellerFeeBasisPoints, // 500 = 5%
     maxSupply: new BN(initData.maxSupply),
-    collectionMintKey: initData.collectionMintKey
+    collectionMintKey: initData.collectionMintKey,
+    manifestUri: Buffer.from('QmbhypgV92sHQtLNcYoem2X5N62CYeRxDFMMCqQespo5vK')
   };
 
   console.log('\n take this address and replace on /constants.ts');
   console.log('\n farm address: ', farm.publicKey.toString());
 
-  const signers = [farm, payer, bank, sales, manager];
-
-  console.log(`
-    farm ${farm.publicKey.toString()}
-    farmAuth ${farmAuth.toString()}
-    payer ${payer.publicKey.toString()}
-    sales ${sales.publicKey.toString()}
-    manager ${manager.publicKey.toString()}
-  `);
+  const signers = [farm, payer, sales];
 
   const accounts = {
     farm: farm.publicKey,
@@ -74,15 +57,7 @@ export const initializeFarm = async <FarmInitData>(initData) => {
 
     // can sign for metadata
     farmAuthority: farmAuth,
-    
-    // // can sign for creator
-    // creatorAuthority: creatorAuth,
 
-    farmManager: manager.publicKey,
-    
-    bank: bank.publicKey,
-    artBank: new PublicKey(bankIDL.metadata.address),
-    
     // this has to be someone completely separate
     payer: payer.publicKey,
 
@@ -90,7 +65,7 @@ export const initializeFarm = async <FarmInitData>(initData) => {
   };
 
   const txn = await farmProgram.methods
-    .initFarm(farmAuthBump, params)
+    .initFarm(farmAuthBump, /*creatorAuthBump,*/ params)
     .accounts(accounts)
     .signers(signers)
     .rpc();

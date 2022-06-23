@@ -10,27 +10,25 @@ pub mod error;
 pub mod constants;
 pub mod utils;
 
-declare_id!("BbNeEhJmVCyXHc28TvFowCJgZuTUsCszjcwMhQ7uxjQs");
+declare_id!("EjGZ21k9e6jYm5HCVTPVjNBgG7DJhoVtmman7dDrqLoZ");
 
 #[program]
 pub mod farm {
     use super::*;
 
-    pub fn set_collection(ctx: Context<SetCollection>) -> Result<()> {
-        handle_set_collection(ctx)
-    }
+    // pub fn set_collection(ctx: Context<SetCollection>) -> Result<()> {
+    //     handle_set_collection(ctx)
+    // }
 
-    pub fn update_farm_collection(ctx: Context<UpdateFarm>, collection_mint_key: Option<Pubkey>) -> Result<()> {
-        handle_update_farm_collection(ctx, collection_mint_key)
-    }
+    // pub fn update_farm_collection(ctx: Context<UpdateFarm>, collection_mint_key: Option<Pubkey>) -> Result<()> {
+    //     handle_update_farm_collection(ctx, collection_mint_key)
+    // }
 
     pub fn mint_nft(
         ctx: Context<MintNFT>,
         bump_auth: u8, 
-        nft_name: String, 
-        nft_uri: String
     ) -> Result<()> {
-        handle_mint_nft(ctx, bump_auth, nft_name, nft_uri)
+        handle_mint_nft(ctx, bump_auth)
     }
 
     pub fn init_farm(
@@ -40,4 +38,11 @@ pub mod farm {
     ) -> Result<()> {
         instructions::init_farm::handler(ctx, bump_auth, data)
     }
+
+    // pub fn add_uri(
+    //     ctx: Context<AddUri>, 
+    //     uri: Vec<u8>,
+    // ) -> Result<()> {
+    //     instructions::add_uri::handler(ctx, uri)
+    // }
 }
